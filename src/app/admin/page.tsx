@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { DollarSign, ShoppingBag, Users, TrendingUp } from 'lucide-react';
 
 export default function AdminDashboard() {
+    const supabase = createClient();
     const [stats, setStats] = useState({
         revenue: 0,
         orders: 0,

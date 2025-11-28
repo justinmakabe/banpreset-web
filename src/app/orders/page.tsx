@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Package, Download, Clock, QrCode, X, Trash2 } from 'lucide-react';
 import Link from 'next/link';
@@ -9,6 +9,7 @@ import { formatCurrency } from '@/utils/format';
 
 export default function OrdersPage() {
     const router = useRouter();
+    const supabase = createClient();
     const [loading, setLoading] = useState(true);
     const [orders, setOrders] = useState<any[]>([]);
     const [bankInfo, setBankInfo] = useState<any>(null);

@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { Mail, Shield } from 'lucide-react';
 
 export default function UsersPage() {
+    const supabase = createClient();
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 

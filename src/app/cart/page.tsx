@@ -4,10 +4,11 @@ import { useCart } from '@/context/CartContext';
 import { Trash2, ArrowRight, Tag } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { formatCurrency } from '@/utils/format';
 
 export default function CartPage() {
+    const supabase = createClient();
     const { cart, removeItem, total, discount, finalTotal, applyCoupon, couponCode } = useCart();
     const [inputCode, setInputCode] = useState('');
     const [checking, setChecking] = useState(false);

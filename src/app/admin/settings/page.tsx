@@ -3,9 +3,10 @@
 import Link from 'next/link';
 import { Settings, User, Shield, Database, ExternalLink, Save, CreditCard } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 
 export default function SettingsPage() {
+    const supabase = createClient();
     const [bankInfo, setBankInfo] = useState({
         accountNumber: '',
         bankName: '', // Bin

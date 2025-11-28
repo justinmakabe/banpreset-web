@@ -3,9 +3,10 @@
 import Link from 'next/link';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 
 export default function AdminProductsPage() {
+    const supabase = createClient();
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 

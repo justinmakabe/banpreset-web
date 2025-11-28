@@ -1,7 +1,7 @@
 'use client';
 
 import { useCart } from '@/context/CartContext';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Loader2, CheckCircle, QrCode } from 'lucide-react';
@@ -10,6 +10,7 @@ import { formatCurrency } from '@/utils/format';
 
 export default function CheckoutPage() {
     const router = useRouter();
+    const supabase = createClient();
     const { cart, finalTotal, clearCart, couponCode } = useCart();
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);

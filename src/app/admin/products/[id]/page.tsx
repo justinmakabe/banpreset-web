@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { useRouter, useParams } from 'next/navigation';
 import { Plus, Trash2 } from 'lucide-react';
 
 export default function EditProductPage() {
     const router = useRouter();
+    const supabase = createClient();
     const params = useParams();
     const id = params.id as string;
 

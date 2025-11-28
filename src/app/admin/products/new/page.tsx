@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2 } from 'lucide-react';
 
 export default function AddProductPage() {
     const router = useRouter();
+    const supabase = createClient();
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState<any[]>([]);
 

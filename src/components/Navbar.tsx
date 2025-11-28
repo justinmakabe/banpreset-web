@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import { ShoppingCart, Menu, Search, User, LogOut, Settings, Package } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 
 export default function Navbar() {
   const router = useRouter();
+  const supabase = createClient();
   const { cart } = useCart();
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);

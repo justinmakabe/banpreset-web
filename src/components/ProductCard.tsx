@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { formatCurrency } from '@/utils/format';
 import { useCart } from '@/context/CartContext';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 
 interface ProductCardProps {
     id: string;
@@ -16,6 +16,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ id, title, category, price, image }: ProductCardProps) {
+    const supabase = createClient();
     const { addItem } = useCart();
     const [isWishlisted, setIsWishlisted] = useState(false);
     const [user, setUser] = useState<any>(null);

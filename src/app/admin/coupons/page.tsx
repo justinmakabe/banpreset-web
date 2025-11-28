@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { Plus, Trash2, Tag } from 'lucide-react';
 
 export default function CouponsPage() {
+    const supabase = createClient();
     const [coupons, setCoupons] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [newCoupon, setNewCoupon] = useState({ code: '', discount_percent: 10, usage_limit: 0 });

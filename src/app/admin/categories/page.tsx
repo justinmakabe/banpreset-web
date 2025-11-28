@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { Plus, Trash2, Tag } from 'lucide-react';
 
 export default function CategoriesPage() {
+    const supabase = createClient();
     const [categories, setCategories] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [newCategory, setNewCategory] = useState({ name: '', slug: '', description: '' });
