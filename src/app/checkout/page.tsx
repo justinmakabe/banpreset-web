@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Loader2, CheckCircle, QrCode } from 'lucide-react';
 import Link from 'next/link';
+import { formatCurrency } from '@/utils/format';
 
 export default function CheckoutPage() {
     const router = useRouter();
@@ -54,23 +55,22 @@ export default function CheckoutPage() {
                 return;
             }
 
-            // Generate Payment Code (e.g., DH + Timestamp + Random)
-            const code = `DH${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 1000)}`;
-            setPaymentCode(code);
-
             // Create Order
             const { data: order, error: orderError } = await supabase
                 .from('orders')
                 .insert({
                     user_id: user.id,
                     total_amount: finalTotal,
-                    status: 'pending',
-                    payment_code: code
+                    status: 'pending'
                 })
                 .select()
                 .single();
 
             if (orderError) throw orderError;
+
+            // Set payment code for display (DH + order_code)
+            const code = `DH${order.order_code}`;
+            setPaymentCode(code);
 
             // Create Order Items
             const orderItems = cart.map(item => ({
@@ -140,7 +140,7 @@ export default function CheckoutPage() {
                             </div>
                             <div className="flex justify-between border-b border-gray-200 py-2">
                                 <span className="text-gray-500">Amount:</span>
-                                <span className="font-bold text-green-600">${finalTotal}</span>
+                                <span className="font-bold text-green-600">{formatCurrency(finalTotal)}</span>
                             </div>
                             <div className="flex justify-between py-2 bg-yellow-50 px-2 rounded">
                                 <span className="text-gray-500">Content:</span>
@@ -189,7 +189,7 @@ export default function CheckoutPage() {
                             </div>
                             <div className="flex-1">
                                 <h3 className="font-bold text-white">{item.name}</h3>
-                                <p className="text-primary font-bold mt-1">${item.price}</p>
+                                <p className="text-primary font-bold mt-1">{formatCurrency(item.price)}</p>
                             </div>
                         </div>
                     ))}
@@ -202,12 +202,12 @@ export default function CheckoutPage() {
                     <div className="space-y-2 text-sm">
                         <div className="flex justify-between text-gray-400">
                             <span>Subtotal</span>
-                            <span>${cart.reduce((sum, item) => sum + item.price, 0).toFixed(2)}</span>
+                            <span>{formatCurrency(cart.reduce((sum, item) => sum + item.price, 0))}</span>
                         </div>
                         {/* Discount display could go here */}
                         <div className="flex justify-between text-white font-bold text-lg pt-4 border-t border-white/10">
                             <span>Total</span>
-                            <span>${finalTotal.toFixed(2)}</span>
+                            <span>{formatCurrency(finalTotal)}</span>
                         </div>
                     </div>
 

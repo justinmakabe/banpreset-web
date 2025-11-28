@@ -5,6 +5,7 @@ import { Trash2, ArrowRight, Tag } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { formatCurrency } from '@/utils/format';
 
 export default function CartPage() {
     const { cart, removeItem, total, discount, finalTotal, applyCoupon, couponCode } = useCart();
@@ -70,7 +71,7 @@ export default function CartPage() {
                                 <div className="flex-1 flex flex-col justify-between">
                                     <div>
                                         <h3 className="text-white font-bold">{item.name}</h3>
-                                        <p className="text-primary font-medium">${item.price}</p>
+                                        <p className="text-primary font-medium">{formatCurrency(item.price)}</p>
                                     </div>
                                     <button
                                         onClick={() => removeItem(item.id)}
@@ -91,17 +92,17 @@ export default function CartPage() {
                             <div className="space-y-3 mb-6">
                                 <div className="flex justify-between text-gray-300">
                                     <span>Subtotal</span>
-                                    <span>${total.toFixed(2)}</span>
+                                    <span>{formatCurrency(total)}</span>
                                 </div>
                                 {discount > 0 && (
                                     <div className="flex justify-between text-green-400">
                                         <span>Discount ({couponCode})</span>
-                                        <span>-{discount}% (-${(total * discount / 100).toFixed(2)})</span>
+                                        <span>-{discount}% (-{formatCurrency(total * discount / 100)})</span>
                                     </div>
                                 )}
                                 <div className="border-t border-white/10 pt-3 flex justify-between text-white font-bold text-lg">
                                     <span>Total</span>
-                                    <span>${finalTotal.toFixed(2)}</span>
+                                    <span>{formatCurrency(finalTotal)}</span>
                                 </div>
                             </div>
 

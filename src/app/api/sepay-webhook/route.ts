@@ -7,34 +7,41 @@ export async function POST(request: Request) {
         const { content, transferAmount } = body;
 
         // Sepay sends 'content' which is the transaction description.
-        // We expect it to contain our payment code (e.g., DH123456).
-        // The payment code is what we stored in the 'orders' table.
+        // We expect it to contain our payment code (e.g., DH1005).
 
         // Basic validation
         if (!content || !transferAmount) {
             return NextResponse.json({ success: false, message: 'Invalid data' }, { status: 400 });
         }
 
-        // Extract payment code from content (assuming content IS the code or contains it)
-        // For simplicity, we'll assume the content sent by Sepay (which comes from the QR code) IS the payment code.
-        // Or we can try to match it.
-        const paymentCode = content;
+        // Extract payment code from content
+        // Expected format: DH + OrderCode (e.g., DH1005)
+        // We use a regex to find "DH" followed by digits
+        const match = content.match(/DH(\d+)/i);
 
-        // Call the secure RPC function to confirm payment
-        const { data: success, error } = await supabase.rpc('confirm_payment', {
-            p_payment_code: paymentCode,
-            p_amount: transferAmount
-        });
+        if (match) {
+            const orderCode = parseInt(match[1]);
 
-        if (error) {
-            console.error('Error confirming payment:', error);
-            return NextResponse.json({ success: false, message: 'Database error' }, { status: 500 });
-        }
+            // Call the secure RPC function to confirm payment by order code
+            const { data: success, error } = await supabase.rpc('confirm_payment_by_order_code', {
+                p_order_code: orderCode,
+                p_amount: transferAmount
+            });
 
-        if (success) {
-            return NextResponse.json({ success: true, message: 'Payment confirmed' });
+            if (error) {
+                console.error('Error confirming payment:', error);
+                return NextResponse.json({ success: false, message: 'Database error' }, { status: 500 });
+            }
+
+            if (success) {
+                return NextResponse.json({ success: true, message: 'Payment confirmed' });
+            } else {
+                return NextResponse.json({ success: false, message: 'Order not found or amount mismatch' }, { status: 404 });
+            }
         } else {
-            return NextResponse.json({ success: false, message: 'Order not found or amount mismatch' }, { status: 404 });
+            // Fallback: Try to use the old logic if it's not a short code (optional)
+            // For now, we return an error if it doesn't match the format
+            return NextResponse.json({ success: false, message: 'Invalid payment content format' }, { status: 400 });
         }
 
     } catch (error: any) {

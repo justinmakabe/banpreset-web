@@ -121,3 +121,48 @@ $$ language plpgsql security definer;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- RPC Function: Cancel Order (Delete pending orders)
+create or replace function cancel_order(p_order_id uuid)
+returns json as $$
+declare
+  v_user_id uuid;
+  v_order_status text;
+  v_result json;
+begin
+  -- Get current user ID
+  v_user_id := auth.uid();
+  
+  -- Check if user is authenticated
+  if v_user_id is null then
+    return json_build_object('success', false, 'error', 'Not authenticated');
+  end if;
+  
+  -- Get order info and verify ownership
+  select status into v_order_status
+  from orders
+  where id = p_order_id and user_id = v_user_id;
+  
+  -- Check if order exists and belongs to user
+  if not found then
+    return json_build_object('success', false, 'error', 'Order not found');
+  end if;
+  
+  -- Only allow canceling pending orders
+  if v_order_status != 'pending' then
+    return json_build_object('success', false, 'error', 'Only pending orders can be canceled');
+  end if;
+  
+  -- Delete order items first (cascade will delete them, but explicit is better)
+  delete from order_items where order_id = p_order_id;
+  
+  -- Delete the order
+  delete from orders where id = p_order_id;
+  
+  return json_build_object('success', true, 'message', 'Order canceled successfully');
+end;
+$$ language plpgsql security definer;
+
+-- Grant execute permission to authenticated users
+grant execute on function cancel_order(uuid) to authenticated;
+

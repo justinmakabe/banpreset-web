@@ -19,6 +19,7 @@ export default function EditProductPage() {
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
     const [imageUrl, setImageUrl] = useState('');
+    const [downloadUrl, setDownloadUrl] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
     const [attributes, setAttributes] = useState<{ name: string; value: string }[]>([]);
 
@@ -43,6 +44,7 @@ export default function EditProductPage() {
                     setDescription(product.description || '');
                     setPrice(product.price.toString());
                     setImageUrl(product.image_url || '');
+                    setDownloadUrl(product.download_url || '');
                     setSelectedCategory(product.category_id || '');
                     setAttributes(product.attributes || []);
                 }
@@ -87,6 +89,7 @@ export default function EditProductPage() {
                     description,
                     price: parseFloat(price),
                     image_url: imageUrl,
+                    download_url: downloadUrl || null,
                     category_id: selectedCategory || null,
                     attributes: attributes.filter(a => a.name && a.value)
                 })
@@ -248,6 +251,20 @@ export default function EditProductPage() {
                                 <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
                             </div>
                         )}
+                    </div>
+
+                    <div className="bg-surface border border-white/10 p-6 rounded-2xl">
+                        <h3 className="text-lg font-bold text-white mb-4">Download Link</h3>
+                        <p className="text-xs text-gray-400 mb-2">
+                            External link where the user can download the product after purchase.
+                        </p>
+                        <input
+                            type="text"
+                            value={downloadUrl}
+                            onChange={(e) => setDownloadUrl(e.target.value)}
+                            className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary transition-colors"
+                            placeholder="https://drive.google.com/..."
+                        />
                     </div>
                 </div>
             </div>

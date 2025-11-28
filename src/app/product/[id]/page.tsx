@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Check, ShoppingCart, ShieldCheck, Zap } from 'lucide-react';
 import ReviewSection from '@/components/ReviewSection';
+import { formatCurrency } from '@/utils/format';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -53,7 +54,7 @@ export default async function ProductPage({ params }: PageProps) {
                                 {product.name}
                             </h1>
                             <p className="text-3xl font-bold text-white mb-6">
-                                ${product.price}
+                                {formatCurrency(product.price)}
                             </p>
                             <p className="text-lg text-gray-400 leading-relaxed mb-8">
                                 {product.description}

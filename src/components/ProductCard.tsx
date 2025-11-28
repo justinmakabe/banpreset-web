@@ -2,6 +2,7 @@
 
 import { ShoppingCart, Heart } from 'lucide-react';
 import Link from 'next/link';
+import { formatCurrency } from '@/utils/format';
 import { useCart } from '@/context/CartContext';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -99,7 +100,7 @@ export default function ProductCard({ id, title, category, price, image }: Produ
                 <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors truncate">
                     {title}
                 </h3>
-                <p className="text-gray-400 font-medium">${price}</p>
+                <p className="text-gray-400 font-medium">{formatCurrency(price)}</p>
             </div>
         </Link>
     );
