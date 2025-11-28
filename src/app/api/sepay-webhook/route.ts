@@ -3,6 +3,25 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST(request: Request) {
     try {
+        // Verify API Key from SePay
+        const authHeader = request.headers.get('Authorization');
+
+        if (!authHeader || !authHeader.startsWith('Apikey ')) {
+            return NextResponse.json(
+                { success: false, message: 'Unauthorized: Invalid API key format' },
+                { status: 401 }
+            );
+        }
+
+        const apiKey = authHeader.substring(7); // Remove 'Apikey ' prefix
+
+        if (apiKey !== process.env.SEPAY_API_KEY) {
+            return NextResponse.json(
+                { success: false, message: 'Unauthorized: Invalid API key' },
+                { status: 401 }
+            );
+        }
+
         const body = await request.json();
         const { content, transferAmount } = body;
 
