@@ -20,6 +20,13 @@ export default function AdminDashboard() {
 
     const fetchStats = async () => {
         try {
+            // Check auth first
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            if (authError || !user) {
+                window.location.href = '/login';
+                return;
+            }
+
             // 1. Revenue & Orders
             const { data: orders } = await supabase.from('orders').select('total_amount');
             const totalRevenue = orders?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
