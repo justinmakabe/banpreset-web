@@ -30,7 +30,6 @@ export async function updateSession(request: NextRequest) {
                             path: '/',
                             sameSite: 'lax',
                             secure: true, // BẮT BUỘC
-                            httpOnly: true, // BẮT BUỘC
                         })
                     })
                 },

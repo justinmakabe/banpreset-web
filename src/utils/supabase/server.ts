@@ -20,7 +20,7 @@ export async function createClient() {
                                 // ÉP CỨNG SECURE LUÔN
                                 secure: true,
                                 sameSite: 'lax',
-                                httpOnly: true,
+                                // REMOVED httpOnly: true to allow client-side hydration
                             })
                         )
                     } catch {
