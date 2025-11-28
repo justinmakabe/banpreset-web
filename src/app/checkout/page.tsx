@@ -15,6 +15,7 @@ export default function CheckoutPage() {
     const [success, setSuccess] = useState(false);
     const [paymentCode, setPaymentCode] = useState('');
     const [orderTotal, setOrderTotal] = useState(0);
+    const [orderId, setOrderId] = useState<string | null>(null);
     const [bankInfo, setBankInfo] = useState<any>(null);
 
     // Redirect if cart is empty and not success
@@ -23,6 +24,34 @@ export default function CheckoutPage() {
             router.push('/cart');
         }
     }, [cart, success, router]);
+
+    // Realtime Payment Listener
+    useEffect(() => {
+        if (!success || !orderId) return;
+
+        const channel = supabase
+            .channel(`order_status_${orderId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'orders',
+                    filter: `id=eq.${orderId}`,
+                },
+                (payload) => {
+                    if (payload.new.status === 'completed') {
+                        alert('Thanh toán thành công!');
+                        router.push('/orders');
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [success, orderId, router]);
 
     // Fetch Bank Info
     useEffect(() => {
@@ -73,6 +102,7 @@ export default function CheckoutPage() {
             const code = `DH${order.order_code}`;
             setPaymentCode(code);
             setOrderTotal(finalTotal); // Store total before clearing cart
+            setOrderId(order.id); // Store order ID for realtime listener
 
             // Create Order Items
             const orderItems = cart.map(item => ({
