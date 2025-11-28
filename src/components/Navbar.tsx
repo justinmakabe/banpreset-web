@@ -20,8 +20,39 @@ export default function Navbar() {
     const checkUser = async () => {
       try {
         console.log('[Navbar] Checking cookies:', document.cookie);
-        const { data: { session }, error } = await supabase.auth.getSession();
+        let { data: { session }, error } = await supabase.auth.getSession();
         console.log('[Navbar] getSession result:', { session, error });
+
+        // Manual Hydration Fallback
+        if (!session) {
+          console.log('[Navbar] Session missing, attempting manual hydration...');
+          // Match any Supabase auth token cookie
+          const cookieMatch = document.cookie.match(/sb-[a-z0-9]+-auth-token=([^;]+)/);
+          if (cookieMatch) {
+            const cookieValue = cookieMatch[1];
+            // The cookie value is "base64-<encoded-json>"
+            const base64Content = cookieValue.replace(/^base64-/, '');
+            try {
+              const jsonStr = atob(base64Content);
+              const tokenData = JSON.parse(jsonStr);
+              if (tokenData.access_token && tokenData.refresh_token) {
+                console.log('[Navbar] Found token in cookie, setting session...');
+                const { data: refreshData, error: refreshError } = await supabase.auth.setSession({
+                  access_token: tokenData.access_token,
+                  refresh_token: tokenData.refresh_token,
+                });
+                if (refreshData.session) {
+                  session = refreshData.session;
+                  console.log('[Navbar] Manual hydration success!');
+                } else {
+                  console.error('[Navbar] Manual hydration failed:', refreshError);
+                }
+              }
+            } catch (parseError) {
+              console.error('[Navbar] Failed to parse cookie:', parseError);
+            }
+          }
+        }
 
         if (session?.user) {
           setUser(session.user);
