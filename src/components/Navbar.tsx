@@ -18,15 +18,18 @@ export default function Navbar() {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error } = await supabase.auth.getUser();
+      console.log('[Navbar] getUser result:', { user, error });
       setUser(user);
 
       if (user) {
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', user.id)
           .single();
+
+        console.log('[Navbar] Profile check:', { profile, profileError });
 
         if (profile?.role === 'admin') {
           setIsAdmin(true);
@@ -35,7 +38,8 @@ export default function Navbar() {
     };
     getUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('[Navbar] Auth State Change:', event, session?.user?.id);
       setUser(session?.user ?? null);
       if (session?.user) {
         const { data: profile } = await supabase
