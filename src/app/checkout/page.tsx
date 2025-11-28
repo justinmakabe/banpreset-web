@@ -14,6 +14,7 @@ export default function CheckoutPage() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [paymentCode, setPaymentCode] = useState('');
+    const [orderTotal, setOrderTotal] = useState(0);
     const [bankInfo, setBankInfo] = useState<any>(null);
 
     // Redirect if cart is empty and not success
@@ -71,6 +72,7 @@ export default function CheckoutPage() {
             // Set payment code for display (DH + order_code)
             const code = `DH${order.order_code}`;
             setPaymentCode(code);
+            setOrderTotal(finalTotal); // Store total before clearing cart
 
             // Create Order Items
             const orderItems = cart.map(item => ({
@@ -120,7 +122,7 @@ export default function CheckoutPage() {
                         </h3>
                         <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
                             <img
-                                src={`https://qr.sepay.vn/img?acc=${bankInfo.accountNumber}&bank=${bankInfo.bankName}&amount=${Math.round(finalTotal)}&des=${paymentCode}`}
+                                src={`https://qr.sepay.vn/img?acc=${bankInfo.accountNumber}&bank=${bankInfo.bankName}&amount=${Math.round(orderTotal)}&des=${paymentCode}`}
                                 alt="VietQR"
                                 className="w-full h-full object-contain"
                             />
@@ -140,7 +142,7 @@ export default function CheckoutPage() {
                             </div>
                             <div className="flex justify-between border-b border-gray-200 py-2">
                                 <span className="text-gray-500">Amount:</span>
-                                <span className="font-bold text-green-600">{formatCurrency(finalTotal)}</span>
+                                <span className="font-bold text-green-600">{formatCurrency(orderTotal)}</span>
                             </div>
                             <div className="flex justify-between py-2 bg-yellow-50 px-2 rounded">
                                 <span className="text-gray-500">Content:</span>
