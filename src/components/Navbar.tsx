@@ -42,11 +42,13 @@ export default function Navbar() {
       console.log('[Navbar] Auth State Change:', event, session?.user?.id);
       setUser(session?.user ?? null);
       if (session?.user) {
-        const { data: profile } = await supabase
+        const { data: profile, error } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', session.user.id)
           .single();
+
+        console.log('[Navbar] AuthState Profile check:', { profile, error, role: profile?.role });
         setIsAdmin(profile?.role === 'admin');
       } else {
         setIsAdmin(false);
