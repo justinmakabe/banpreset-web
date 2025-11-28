@@ -18,6 +18,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const getUser = async () => {
+      console.log('[Navbar] Checking cookies:', document.cookie); // DEBUG: Check if JS can see the cookie
       const { data: { user }, error } = await supabase.auth.getUser();
       console.log('[Navbar] getUser result:', { user, error });
       setUser(user);
