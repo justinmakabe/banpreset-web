@@ -2,8 +2,9 @@
 
 import { ShoppingCart, Heart } from 'lucide-react';
 import Link from 'next/link';
-import { formatCurrency } from '@/utils/format';
 import { useCart } from '@/context/CartContext';
+import StarRating from './StarRating';
+import PriceDisplay from './PriceDisplay';
 import { useState, useEffect } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { createClient } from '@/utils/supabase/client';
@@ -13,10 +14,13 @@ interface ProductCardProps {
     title: string;
     category: string;
     price: number;
+    salePrice?: number | null;
+    rating?: number;
+    reviewCount?: number;
     image: string;
 }
 
-export default function ProductCard({ id, title, category, price, image }: ProductCardProps) {
+export default function ProductCard({ id, title, category, price, salePrice, rating = 0, reviewCount = 0, image }: ProductCardProps) {
     const supabase = createClient();
     const { addItem } = useCart();
     const [isWishlisted, setIsWishlisted] = useState(false);
@@ -98,11 +102,14 @@ export default function ProductCard({ id, title, category, price, image }: Produ
                 </div>
             </div>
 
-            <div className="mt-4 space-y-1">
+            <div className="mt-4 space-y-2">
                 <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors truncate">
                     {title}
                 </h3>
-                <p className="text-gray-400 font-medium">{formatCurrency(price)}</p>
+                {rating > 0 && (
+                    <StarRating rating={rating} showCount={true} count={reviewCount} size={14} />
+                )}
+                <PriceDisplay price={price} salePrice={salePrice} size="sm" />
             </div>
         </Link>
     );

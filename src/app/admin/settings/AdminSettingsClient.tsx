@@ -11,12 +11,20 @@ interface AdminSettingsClientProps {
         bankName: string;
         accountName: string;
     };
+    initialSocialLinks: {
+        facebook: string;
+        instagram: string;
+        twitter: string;
+        youtube: string;
+    };
 }
 
-export default function AdminSettingsClient({ initialBankInfo }: AdminSettingsClientProps) {
+export default function AdminSettingsClient({ initialBankInfo, initialSocialLinks }: AdminSettingsClientProps) {
     const supabase = createClient();
     const [bankInfo, setBankInfo] = useState(initialBankInfo);
+    const [socialLinks, setSocialLinks] = useState(initialSocialLinks);
     const [saving, setSaving] = useState(false);
+    const [savingSocial, setSavingSocial] = useState(false);
 
     const handleSaveBankInfo = async () => {
         setSaving(true);
@@ -38,6 +46,30 @@ export default function AdminSettingsClient({ initialBankInfo }: AdminSettingsCl
             alert('Error saving settings: ' + message);
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleSaveSocialLinks = async () => {
+        setSavingSocial(true);
+        try {
+            const updates = [
+                { key: 'social_facebook', value: socialLinks.facebook },
+                { key: 'social_instagram', value: socialLinks.instagram },
+                { key: 'social_twitter', value: socialLinks.twitter },
+                { key: 'social_youtube', value: socialLinks.youtube }
+            ];
+
+            const { error } = await supabase
+                .from('settings')
+                .upsert(updates);
+
+            if (error) throw error;
+            alert('Social media links saved successfully!');
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            alert('Error saving settings: ' + message);
+        } finally {
+            setSavingSocial(false);
         }
     };
 
@@ -92,6 +124,65 @@ export default function AdminSettingsClient({ initialBankInfo }: AdminSettingsCl
                         >
                             <Save size={18} />
                             {saving ? 'Saving...' : 'Save Bank Info'}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Social Media Links */}
+                <div className="bg-surface border border-white/10 rounded-2xl p-6 md:col-span-2">
+                    <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <ExternalLink size={20} className="text-primary" /> Social Media Links
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">Facebook URL</label>
+                            <input
+                                type="text"
+                                value={socialLinks.facebook}
+                                onChange={(e) => setSocialLinks({ ...socialLinks, facebook: e.target.value })}
+                                className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary transition-colors"
+                                placeholder="https://facebook.com/..."
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">Instagram URL</label>
+                            <input
+                                type="text"
+                                value={socialLinks.instagram}
+                                onChange={(e) => setSocialLinks({ ...socialLinks, instagram: e.target.value })}
+                                className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary transition-colors"
+                                placeholder="https://instagram.com/..."
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">Twitter URL</label>
+                            <input
+                                type="text"
+                                value={socialLinks.twitter}
+                                onChange={(e) => setSocialLinks({ ...socialLinks, twitter: e.target.value })}
+                                className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary transition-colors"
+                                placeholder="https://twitter.com/..."
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">YouTube URL</label>
+                            <input
+                                type="text"
+                                value={socialLinks.youtube}
+                                onChange={(e) => setSocialLinks({ ...socialLinks, youtube: e.target.value })}
+                                className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary transition-colors"
+                                placeholder="https://youtube.com/..."
+                            />
+                        </div>
+                    </div>
+                    <div className="mt-6 flex justify-end">
+                        <button
+                            onClick={handleSaveSocialLinks}
+                            disabled={savingSocial}
+                            className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-lg transition-all disabled:opacity-50"
+                        >
+                            <Save size={18} />
+                            {savingSocial ? 'Saving...' : 'Save Social Links'}
                         </button>
                     </div>
                 </div>

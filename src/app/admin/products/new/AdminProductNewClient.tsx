@@ -24,6 +24,8 @@ export default function AdminProductNewClient({ initialCategories }: AdminProduc
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
+    const [salePrice, setSalePrice] = useState('');
+    const [rating, setRating] = useState('0');
     const [imageUrl, setImageUrl] = useState('');
     const [downloadUrl, setDownloadUrl] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
@@ -55,6 +57,7 @@ export default function AdminProductNewClient({ initialCategories }: AdminProduc
 
             if (!user) {
                 alert('You must be logged in to create a product');
+                setLoading(false);
                 return;
             }
 
@@ -64,7 +67,9 @@ export default function AdminProductNewClient({ initialCategories }: AdminProduc
                     name: title,
                     description,
                     price: parseFloat(price),
-                    image_url: imageUrl,
+                    sale_price: salePrice ? parseFloat(salePrice) : null,
+                    rating: parseFloat(rating),
+                    image_url: imageUrl || null,
                     download_url: downloadUrl || null,
                     owner_id: user.id,
                     category_id: selectedCategory || null,
@@ -78,6 +83,7 @@ export default function AdminProductNewClient({ initialCategories }: AdminProduc
             router.refresh();
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : String(error);
+            console.error('Product creation error:', error);
             alert('Error creating product: ' + message);
         } finally {
             setLoading(false);
@@ -125,6 +131,31 @@ export default function AdminProductNewClient({ initialCategories }: AdminProduc
                                     className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary transition-colors"
                                     placeholder="29.99"
                                 />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Sale Price ($)</label>
+                                <input
+                                    type="number"
+                                    value={salePrice}
+                                    onChange={(e) => setSalePrice(e.target.value)}
+                                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary transition-colors"
+                                    placeholder="Optional"
+                                />
+                            </div>
+                            <div className="col-span-2">
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Rating (0-5)</label>
+                                <div className="flex items-center gap-4">
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="5"
+                                        step="0.5"
+                                        value={rating}
+                                        onChange={(e) => setRating(e.target.value)}
+                                        className="flex-1 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
+                                    />
+                                    <span className="text-white font-bold w-12 text-center">{rating}</span>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -15,6 +15,8 @@ interface ProductDetail {
     name: string;
     description?: string;
     price: number;
+    sale_price?: number | null;
+    rating?: number;
     image_url?: string | null;
     download_url?: string | null;
     category_id?: string | null;
@@ -37,6 +39,8 @@ export default function AdminProductEditClient({ product, initialCategories }: A
     const [title, setTitle] = useState(product.name);
     const [description, setDescription] = useState(product.description || '');
     const [price, setPrice] = useState(product.price.toString());
+    const [salePrice, setSalePrice] = useState(product.sale_price ? product.sale_price.toString() : '');
+    const [rating, setRating] = useState(product.rating ? product.rating.toString() : '0');
     const [imageUrl, setImageUrl] = useState(product.image_url || '');
     const [downloadUrl, setDownloadUrl] = useState(product.download_url || '');
     const [selectedCategory, setSelectedCategory] = useState(product.category_id || '');
@@ -70,7 +74,9 @@ export default function AdminProductEditClient({ product, initialCategories }: A
                     name: title,
                     description,
                     price: parseFloat(price),
-                    image_url: imageUrl,
+                    sale_price: salePrice ? parseFloat(salePrice) : null,
+                    rating: parseFloat(rating),
+                    image_url: imageUrl || null,
                     download_url: downloadUrl || null,
                     category_id: selectedCategory || null,
                     attributes: attributes.filter(a => a.name && a.value)
@@ -84,6 +90,7 @@ export default function AdminProductEditClient({ product, initialCategories }: A
             router.refresh();
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : String(error);
+            console.error('Product update error:', error);
             alert('Error updating product: ' + message);
         } finally {
             setSaving(false);
@@ -131,6 +138,31 @@ export default function AdminProductEditClient({ product, initialCategories }: A
                                     className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary transition-colors"
                                     placeholder="29.99"
                                 />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Sale Price ($)</label>
+                                <input
+                                    type="number"
+                                    value={salePrice}
+                                    onChange={(e) => setSalePrice(e.target.value)}
+                                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary transition-colors"
+                                    placeholder="Optional"
+                                />
+                            </div>
+                            <div className="col-span-2">
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Rating (0-5)</label>
+                                <div className="flex items-center gap-4">
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="5"
+                                        step="0.5"
+                                        value={rating}
+                                        onChange={(e) => setRating(e.target.value)}
+                                        className="flex-1 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
+                                    />
+                                    <span className="text-white font-bold w-12 text-center">{rating}</span>
+                                </div>
                             </div>
                         </div>
                     </div>

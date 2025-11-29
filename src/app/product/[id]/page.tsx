@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Check, ShoppingCart, ShieldCheck, Zap } from 'lucide-react';
 import ReviewSection from '@/components/ReviewSection';
-import { formatCurrency } from '@/utils/format';
+import PriceDisplay from '@/components/PriceDisplay';
+import StarRating from '@/components/StarRating';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -53,9 +54,12 @@ export default async function ProductPage({ params }: PageProps) {
                             <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 leading-tight">
                                 {product.name}
                             </h1>
-                            <p className="text-3xl font-bold text-white mb-6">
-                                {formatCurrency(product.price)}
-                            </p>
+                            <div className="mb-4">
+                                <StarRating rating={product.rating || 0} showCount={true} count={product.review_count || 0} size={20} />
+                            </div>
+                            <div className="mb-6">
+                                <PriceDisplay price={product.price} salePrice={product.sale_price} size="lg" />
+                            </div>
                             <p className="text-lg text-gray-400 leading-relaxed mb-8">
                                 {product.description}
                             </p>

@@ -8,6 +8,7 @@ import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { Loader2, CheckCircle, QrCode } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency } from '@/utils/format';
+import LoadingOverlay from '@/components/LoadingOverlay';
 
 interface BankInfo {
     bankName?: string;
@@ -198,7 +199,8 @@ export default function CheckoutClient({ user, bankInfo }: CheckoutClientProps) 
     }
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto relative">
+            {loading && <LoadingOverlay message="Đang tạo đơn hàng..." />}
             <h1 className="text-3xl font-bold text-white mb-8">Checkout</h1>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

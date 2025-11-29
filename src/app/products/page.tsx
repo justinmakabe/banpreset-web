@@ -145,6 +145,9 @@ export default async function ProductsPage({
                                         title={product.name}
                                         category={product.categories?.name || 'Digital Asset'}
                                         price={product.price}
+                                        salePrice={product.sale_price}
+                                        rating={product.rating}
+                                        reviewCount={product.review_count}
                                         image={product.image_url || 'https://images.unsplash.com/photo-1626785774573-4b799314346d?w=800&q=80'}
                                     />
                                 ))}

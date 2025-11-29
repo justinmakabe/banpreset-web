@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Package, Download, Clock, QrCode, X, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency } from '@/utils/format';
+import LoadingOverlay from '@/components/LoadingOverlay';
 
 interface BankInfo {
     bankName?: string;
@@ -94,7 +95,8 @@ export default function OrdersClient({ initialOrders, bankInfo }: OrdersClientPr
 
     return (
         <div className="min-h-screen pt-32 pb-20 px-4">
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-5xl mx-auto relative">
+                {canceling && <LoadingOverlay message="Đang hủy đơn hàng..." />}
                 <div className="flex items-center justify-between mb-8">
                     <h1 className="text-3xl font-bold text-white">My Orders</h1>
                     <Link href="/" className="text-primary hover:text-primary/80 text-sm font-medium">
