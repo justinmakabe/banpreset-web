@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import CheckoutClient from './CheckoutClient';
 
 export default async function CheckoutPage() {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: { user }, error } = await supabase.auth.getUser();
 

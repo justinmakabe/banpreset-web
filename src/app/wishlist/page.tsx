@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import WishlistClient from './WishlistClient';
 
 export default async function WishlistPage() {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: { user }, error } = await supabase.auth.getUser();
 
