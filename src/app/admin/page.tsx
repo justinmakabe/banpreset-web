@@ -1,76 +1,48 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@/utils/supabase/server';
 import { DollarSign, ShoppingBag, Users, TrendingUp } from 'lucide-react';
+import { redirect } from 'next/navigation';
 
-export default function AdminDashboard() {
-    const supabase = createClient();
-    const [stats, setStats] = useState({
-        revenue: 0,
-        orders: 0,
-        products: 0,
-        users: 0
-    });
-    const [recentActivity, setRecentActivity] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+export default async function AdminDashboard() {
+    const supabase = await createClient();
 
-    useEffect(() => {
-        fetchStats();
-    }, []);
+    // Check auth
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+        redirect('/login');
+    }
 
-    const fetchStats = async () => {
-        try {
-            // Check auth first
-            const { data: { user }, error: authError } = await supabase.auth.getUser();
-            if (authError || !user) {
-                window.location.href = '/login';
-                return;
-            }
+    // 1. Revenue & Orders
+    const { data: orders } = await supabase.from('orders').select('total_amount');
+    const totalRevenue = orders?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
+    const totalOrders = orders?.length || 0;
 
-            // 1. Revenue & Orders
-            const { data: orders } = await supabase.from('orders').select('total_amount');
-            const totalRevenue = orders?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
-            const totalOrders = orders?.length || 0;
+    // 2. Products
+    const { count: productsCount } = await supabase.from('products').select('*', { count: 'exact', head: true });
 
-            // 2. Products
-            const { count: productsCount } = await supabase.from('products').select('*', { count: 'exact', head: true });
+    // 3. Users (Profiles)
+    const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
 
-            // 3. Users (Profiles)
-            const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-
-            setStats({
-                revenue: totalRevenue,
-                orders: totalOrders,
-                products: productsCount || 0,
-                users: usersCount || 0
-            });
-
-            // 4. Recent Activity
-            const { data: recent } = await supabase
-                .from('orders')
-                .select(`
-                    *,
-                    profiles (email),
-                    order_items (
-                        products (name)
-                    )
-                `)
-                .order('created_at', { ascending: false })
-                .limit(5);
-
-            setRecentActivity(recent || []);
-
-        } catch (error) {
-            console.error('Error fetching stats:', error);
-        } finally {
-            setLoading(false);
-        }
+    const stats = {
+        revenue: totalRevenue,
+        orders: totalOrders,
+        products: productsCount || 0,
+        users: usersCount || 0
     };
 
-    if (loading) {
-        return <div className="text-white">Loading dashboard...</div>;
-    }
+    // 4. Recent Activity
+    const { data: recent } = await supabase
+        .from('orders')
+        .select(`
+            *,
+            profiles (email),
+            order_items (
+                products (name)
+            )
+        `)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+    const recentActivity = recent || [];
 
     return (
         <div>

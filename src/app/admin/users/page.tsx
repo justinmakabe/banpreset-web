@@ -1,28 +1,22 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@/utils/supabase/server';
 import { Mail, Shield } from 'lucide-react';
+import { redirect } from 'next/navigation';
 
-export default function UsersPage() {
-    const supabase = createClient();
-    const [users, setUsers] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+export default async function UsersPage() {
+    const supabase = await createClient();
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            const { data } = await supabase
-                .from('profiles')
-                .select('*')
-                .order('updated_at', { ascending: false });
+    // Check auth
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+        redirect('/login');
+    }
 
-            setUsers(data || []);
-            setLoading(false);
-        };
-        fetchUsers();
-    }, []);
+    const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('updated_at', { ascending: false });
 
-    if (loading) return <div className="text-white">Loading...</div>;
+    const users = data || [];
 
     return (
         <div className="space-y-8">
