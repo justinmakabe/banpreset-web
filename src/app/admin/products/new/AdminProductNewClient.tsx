@@ -61,6 +61,19 @@ export default function AdminProductNewClient({ initialCategories }: AdminProduc
                 return;
             }
 
+            // Check if user is admin
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', user.id)
+                .single();
+
+            if (!profile || profile.role !== 'admin') {
+                alert('⛔ Permission Denied: You must be an ADMIN to create products.\nPlease contact the site owner or check your account role.');
+                setLoading(false);
+                return;
+            }
+
             const { error } = await supabase
                 .from('products')
                 .insert({
@@ -84,7 +97,7 @@ export default function AdminProductNewClient({ initialCategories }: AdminProduc
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : String(error);
             console.error('Product creation error:', error);
-            alert('Error creating product: ' + message);
+            alert(`Error creating product: ${message}\n\nTip: Check if you are logged in as an Admin and if the database migrations have been run.`);
         } finally {
             setLoading(false);
         }

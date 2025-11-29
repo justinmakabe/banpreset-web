@@ -68,6 +68,26 @@ export default function AdminProductEditClient({ product, initialCategories }: A
 
         setSaving(true);
         try {
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (!user) {
+                alert('You must be logged in to update a product');
+                setSaving(false);
+                return;
+            }
+
+            // Check if user is admin
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', user.id)
+                .single();
+
+            if (!profile || profile.role !== 'admin') {
+                alert('⛔ Permission Denied: You must be an ADMIN to update products.\nPlease contact the site owner or check your account role.');
+                setSaving(false);
+                return;
+            }
             const { error } = await supabase
                 .from('products')
                 .update({
@@ -91,7 +111,7 @@ export default function AdminProductEditClient({ product, initialCategories }: A
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : String(error);
             console.error('Product update error:', error);
-            alert('Error updating product: ' + message);
+            alert(`Error updating product: ${message}\n\nTip: Check if you are logged in as an Admin and if the database migrations have been run.`);
         } finally {
             setSaving(false);
         }
