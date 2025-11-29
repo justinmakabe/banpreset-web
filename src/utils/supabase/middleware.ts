@@ -41,8 +41,11 @@ export async function updateSession(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     console.log('[Middleware] User session:', user?.id ? 'Found' : 'Not Found')
 
-    // Bảo vệ route Admin
-    if (request.nextUrl.pathname.startsWith('/admin') && !user) {
+    // Protected Routes
+    const protectedPaths = ['/admin', '/profile', '/orders', '/checkout', '/wishlist'];
+    const isProtected = protectedPaths.some(path => request.nextUrl.pathname.startsWith(path));
+
+    if (isProtected && !user) {
         console.log('[Middleware] Redirecting to login (No Session)')
         return NextResponse.redirect(new URL('/login', request.url))
     }
