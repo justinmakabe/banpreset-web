@@ -7,108 +7,43 @@ import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 
-export default function Navbar() {
+interface NavbarProps {
+  initialUser: any;
+  initialIsAdmin: boolean;
+}
+
+export default function Navbar({ initialUser, initialIsAdmin }: NavbarProps) {
   const router = useRouter();
   const supabase = createClient();
   const { cart } = useCart();
-  const [user, setUser] = useState<any>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [user, setUser] = useState<any>(initialUser);
+  const [isAdmin, setIsAdmin] = useState(initialIsAdmin);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        console.log('[Navbar] Checking cookies:', document.cookie);
-        let { data: { session }, error } = await supabase.auth.getSession();
-        console.log('[Navbar] getSession result:', { session, error });
-
-        // Manual Hydration Fallback
-        if (!session) {
-          console.log('[Navbar] Session missing, attempting manual hydration...');
-          // Match any Supabase auth token cookie
-          const cookieMatch = document.cookie.match(/sb-[a-z0-9]+-auth-token=([^;]+)/);
-          if (cookieMatch) {
-            const cookieValue = cookieMatch[1];
-            // The cookie value is "base64-<encoded-json>"
-            const base64Content = cookieValue.replace(/^base64-/, '');
-            try {
-              const jsonStr = atob(base64Content);
-              const tokenData = JSON.parse(jsonStr);
-              if (tokenData.access_token && tokenData.refresh_token) {
-                console.log('[Navbar] Found token in cookie, setting session...');
-                const { data: refreshData, error: refreshError } = await supabase.auth.setSession({
-                  access_token: tokenData.access_token,
-                  refresh_token: tokenData.refresh_token,
-                });
-                if (refreshData.session) {
-                  session = refreshData.session;
-                  console.log('[Navbar] Manual hydration success!');
-                } else {
-                  console.error('[Navbar] Manual hydration failed:', refreshError);
-                }
-              }
-            } catch (parseError) {
-              console.error('[Navbar] Failed to parse cookie:', parseError);
-            }
-          }
-        }
-
-        if (session?.user) {
-          setUser(session.user);
-          console.log('[Navbar] Fetching profile for:', session.user.id);
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .single();
-
-          console.log('[Navbar] Profile fetch result:', { profile, error, role: profile?.role });
-
-          if (profile?.role === 'admin') {
-            console.log('[Navbar] User is ADMIN');
-            setIsAdmin(true);
-          } else {
-            console.log('[Navbar] User is NOT admin');
-            setIsAdmin(false);
-          }
-        }
-      } catch (err) {
-        console.error('[Navbar] Session check failed:', err);
-      }
-    };
-
-    checkUser();
-
+    // Listen for auth changes (login/logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('[Navbar] Auth State Change:', event, session?.user?.id);
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        console.log('[Navbar] AuthState Fetching profile for:', session.user.id);
-        const { data: profile, error } = await supabase
+        // If we have a user, re-verify admin status (e.g. after login)
+        // This is still useful for client-side transitions
+        const { data: profile } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', session.user.id)
           .single();
 
-        console.log('[Navbar] AuthState Profile fetch result:', { profile, error, role: profile?.role });
-
-        if (profile?.role === 'admin') {
-          console.log('[Navbar] AuthState User is ADMIN');
-          setIsAdmin(true);
-        } else {
-          console.log('[Navbar] AuthState User is NOT admin');
-          setIsAdmin(false);
-        }
+        setIsAdmin(profile?.role === 'admin');
       } else {
-        console.log('[Navbar] AuthState No user, clearing admin');
         setIsAdmin(false);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
