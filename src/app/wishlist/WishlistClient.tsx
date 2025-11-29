@@ -3,8 +3,16 @@
 import ProductCard from '@/components/ProductCard';
 import { Heart } from 'lucide-react';
 
+interface WishlistProduct {
+    id: string;
+    name: string;
+    category: string;
+    price: number;
+    image_url?: string | null;
+}
+
 interface WishlistClientProps {
-    initialProducts: any[];
+    initialProducts: WishlistProduct[];
 }
 
 export default function WishlistClient({ initialProducts }: WishlistClientProps) {

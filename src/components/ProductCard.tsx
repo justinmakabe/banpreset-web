@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { formatCurrency } from '@/utils/format';
 import { useCart } from '@/context/CartContext';
 import { useState, useEffect } from 'react';
+import type { User } from '@supabase/supabase-js';
 import { createClient } from '@/utils/supabase/client';
 
 interface ProductCardProps {
@@ -19,11 +20,7 @@ export default function ProductCard({ id, title, category, price, image }: Produ
     const supabase = createClient();
     const { addItem } = useCart();
     const [isWishlisted, setIsWishlisted] = useState(false);
-    const [user, setUser] = useState<any>(null);
-
-    useEffect(() => {
-        checkUserAndWishlist();
-    }, [id]);
+    const [user, setUser] = useState<User | null>(null);
 
     const checkUserAndWishlist = async () => {
         const { data: { user } } = await supabase.auth.getUser();
@@ -40,6 +37,10 @@ export default function ProductCard({ id, title, category, price, image }: Produ
             if (data) setIsWishlisted(true);
         }
     };
+
+    useEffect(() => {
+        checkUserAndWishlist();
+    }, [id]);
 
     const toggleWishlist = async (e: React.MouseEvent) => {
         e.preventDefault();

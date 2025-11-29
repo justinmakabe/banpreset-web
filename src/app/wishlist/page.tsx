@@ -17,10 +17,27 @@ export default async function WishlistPage() {
         .eq('user_id', user.id);
 
     // Extract products from the join
-    const wishlistProducts = data?.map((item: any) => ({
-        ...item.products,
-        category: item.products.categories?.name || 'Digital Asset'
-    })) || [];
+    interface WishlistItem {
+        product_id: string;
+        products: {
+            id: string;
+            name: string;
+            price: number;
+            image_url?: string | null;
+            categories?: {
+                name?: string;
+            } | null;
+        } | null;
+    }
+
+    const wishlistProducts = ((data as unknown as WishlistItem[]) || [])
+        .filter((item): item is WishlistItem & { products: NonNullable<WishlistItem['products']> } =>
+            item.products !== null
+        )
+        .map((item) => ({
+            ...item.products,
+            category: item.products.categories?.name || 'Digital Asset'
+        }));
 
     return <WishlistClient initialProducts={wishlistProducts} />;
 }

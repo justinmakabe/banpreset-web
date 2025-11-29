@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import { ShoppingCart, Menu, Search, User, LogOut, Settings, Package } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 
 interface NavbarProps {
-  initialUser: any;
+  initialUser: SupabaseUser | null;
   initialIsAdmin: boolean;
 }
 
@@ -16,7 +17,7 @@ export default function Navbar({ initialUser, initialIsAdmin }: NavbarProps) {
   const router = useRouter();
   const supabase = createClient();
   const { cart } = useCart();
-  const [user, setUser] = useState<any>(initialUser);
+  const [user, setUser] = useState<SupabaseUser | null>(initialUser);
   const [isAdmin, setIsAdmin] = useState(initialIsAdmin);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);

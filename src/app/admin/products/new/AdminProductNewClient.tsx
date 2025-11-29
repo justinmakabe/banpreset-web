@@ -5,15 +5,20 @@ import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2 } from 'lucide-react';
 
+interface Category {
+    id: string;
+    name: string;
+}
+
 interface AdminProductNewClientProps {
-    initialCategories: any[];
+    initialCategories: Category[];
 }
 
 export default function AdminProductNewClient({ initialCategories }: AdminProductNewClientProps) {
     const router = useRouter();
     const supabase = createClient();
     const [loading, setLoading] = useState(false);
-    const [categories] = useState<any[]>(initialCategories);
+    const [categories] = useState<Category[]>(initialCategories);
 
     // Form State
     const [title, setTitle] = useState('');
@@ -71,8 +76,9 @@ export default function AdminProductNewClient({ initialCategories }: AdminProduc
             alert('Product created successfully!');
             router.push('/admin/products');
             router.refresh();
-        } catch (error: any) {
-            alert('Error creating product: ' + error.message);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            alert('Error creating product: ' + message);
         } finally {
             setLoading(false);
         }

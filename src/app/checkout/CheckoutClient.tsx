@@ -4,13 +4,20 @@ import { useCart } from '@/context/CartContext';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { Loader2, CheckCircle, QrCode } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency } from '@/utils/format';
 
+interface BankInfo {
+    bankName?: string;
+    accountNumber?: string;
+    accountName?: string;
+}
+
 interface CheckoutClientProps {
-    user: any;
-    bankInfo: any;
+    user: SupabaseUser | null;
+    bankInfo: BankInfo | null;
 }
 
 export default function CheckoutClient({ user, bankInfo }: CheckoutClientProps) {
@@ -107,9 +114,10 @@ export default function CheckoutClient({ user, bankInfo }: CheckoutClientProps) 
             // Success
             setSuccess(true);
             clearCart();
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
             console.error('Checkout error:', error);
-            alert('Checkout failed: ' + error.message);
+            alert('Checkout failed: ' + message);
         } finally {
             setLoading(false);
         }

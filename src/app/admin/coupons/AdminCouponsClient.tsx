@@ -5,14 +5,23 @@ import { createClient } from '@/utils/supabase/client';
 import { Plus, Trash2, Tag } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+interface Coupon {
+    id: string;
+    code: string;
+    discount_percent: number;
+    usage_limit: number;
+    used_count?: number;
+    created_at?: string;
+}
+
 interface AdminCouponsClientProps {
-    initialCoupons: any[];
+    initialCoupons: Coupon[];
 }
 
 export default function AdminCouponsClient({ initialCoupons }: AdminCouponsClientProps) {
     const supabase = createClient();
     const router = useRouter();
-    const [coupons, setCoupons] = useState<any[]>(initialCoupons);
+    const [coupons, setCoupons] = useState<Coupon[]>(initialCoupons);
     const [newCoupon, setNewCoupon] = useState({ code: '', discount_percent: 10, usage_limit: 0 });
     const [creating, setCreating] = useState(false);
 
@@ -35,8 +44,9 @@ export default function AdminCouponsClient({ initialCoupons }: AdminCouponsClien
             if (data) setCoupons(data);
             router.refresh();
 
-        } catch (error: any) {
-            alert('Error creating coupon: ' + error.message);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            alert('Error creating coupon: ' + message);
         } finally {
             setCreating(false);
         }
@@ -54,8 +64,9 @@ export default function AdminCouponsClient({ initialCoupons }: AdminCouponsClien
             if (data) setCoupons(data);
             router.refresh();
 
-        } catch (error: any) {
-            alert('Error deleting coupon: ' + error.message);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            alert('Error deleting coupon: ' + message);
         }
     };
 

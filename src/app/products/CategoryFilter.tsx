@@ -3,7 +3,8 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Tag } from 'lucide-react';
 
-export default function CategoryFilter({ categories }: { categories: any[] }) {
+interface Category { id: string; name: string; slug: string }
+export default function CategoryFilter({ categories }: { categories: Category[] }) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const currentCategory = searchParams.get('category');

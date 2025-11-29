@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { createClient } from '@/utils/supabase/client';
 import { User, Mail, Shield, Save } from 'lucide-react';
 
 interface ProfileClientProps {
-    user: any;
+    user: SupabaseUser | null;
     initialProfile: {
         full_name: string;
         avatar_url: string;
@@ -33,8 +34,9 @@ export default function ProfileClient({ user, initialProfile }: ProfileClientPro
 
             if (error) throw error;
             alert('Profile updated successfully!');
-        } catch (error: any) {
-            alert('Error updating profile: ' + error.message);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            alert('Error updating profile: ' + message);
         } finally {
             setSaving(false);
         }
@@ -57,7 +59,7 @@ export default function ProfileClient({ user, initialProfile }: ProfileClientPro
                         </div>
                         <div>
                             <h3 className="text-xl font-bold text-white mb-1">{user?.email}</h3>
-                            <p className="text-gray-400 text-sm">Member since {new Date(user?.created_at).toLocaleDateString()}</p>
+                            <p className="text-gray-400 text-sm">Member since {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</p>
                         </div>
                     </div>
 

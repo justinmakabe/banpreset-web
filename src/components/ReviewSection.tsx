@@ -1,14 +1,23 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
+import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { Star, User } from 'lucide-react';
 
 export default function ReviewSection({ productId }: { productId: string }) {
     const supabase = createClient();
-    const [reviews, setReviews] = useState<any[]>([]);
+    interface Review {
+        id: string;
+        rating: number;
+        comment: string;
+        created_at: string;
+        profiles?: { full_name?: string | null; avatar_url?: string | null } | null;
+    }
+    const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<SupabaseUser | null>(null);
 
     // Form
     const [rating, setRating] = useState(5);
@@ -57,8 +66,9 @@ export default function ReviewSection({ productId }: { productId: string }) {
             setRating(5);
             fetchReviews();
             alert('Review posted successfully!');
-        } catch (error: any) {
-            alert('Error posting review: ' + error.message);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            alert('Error posting review: ' + message);
         } finally {
             setSubmitting(false);
         }
@@ -147,9 +157,9 @@ export default function ReviewSection({ productId }: { productId: string }) {
                     ) : (
                         <div className="text-center py-8">
                             <p className="text-gray-400 mb-4">Please log in to write a review.</p>
-                            <a href="/login" className="inline-block px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors">
+                            <Link href="/login" className="inline-block px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors">
                                 Log In
-                            </a>
+                            </Link>
                         </div>
                     )}
                 </div>

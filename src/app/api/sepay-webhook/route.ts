@@ -63,7 +63,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ success: false, message: 'Invalid payment content format' }, { status: 400 });
         }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Webhook error:', error);
         return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
     }

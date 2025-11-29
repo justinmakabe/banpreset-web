@@ -5,9 +5,25 @@ import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2 } from 'lucide-react';
 
+interface Category {
+    id: string;
+    name: string;
+}
+
+interface ProductDetail {
+    id: string;
+    name: string;
+    description?: string;
+    price: number;
+    image_url?: string | null;
+    download_url?: string | null;
+    category_id?: string | null;
+    attributes?: { name: string; value: string }[];
+}
+
 interface AdminProductEditClientProps {
-    product: any;
-    initialCategories: any[];
+    product: ProductDetail;
+    initialCategories: Category[];
 }
 
 export default function AdminProductEditClient({ product, initialCategories }: AdminProductEditClientProps) {
@@ -15,7 +31,7 @@ export default function AdminProductEditClient({ product, initialCategories }: A
     const supabase = createClient();
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [categories] = useState<any[]>(initialCategories);
+    const [categories] = useState<Category[]>(initialCategories);
 
     // Form State
     const [title, setTitle] = useState(product.name);
@@ -66,8 +82,9 @@ export default function AdminProductEditClient({ product, initialCategories }: A
             alert('Product updated successfully!');
             router.push('/admin/products');
             router.refresh();
-        } catch (error: any) {
-            alert('Error updating product: ' + error.message);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            alert('Error updating product: ' + message);
         } finally {
             setSaving(false);
         }

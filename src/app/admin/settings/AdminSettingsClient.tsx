@@ -33,8 +33,9 @@ export default function AdminSettingsClient({ initialBankInfo }: AdminSettingsCl
 
             if (error) throw error;
             alert('Bank information saved successfully!');
-        } catch (error: any) {
-            alert('Error saving settings: ' + error.message);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            alert('Error saving settings: ' + message);
         } finally {
             setSaving(false);
         }

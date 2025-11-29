@@ -25,16 +25,16 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-    const [cart, setCart] = useState<CartItem[]>([]);
+    const [cart, setCart] = useState<CartItem[]>(() => {
+        try {
+            const savedCart = typeof window !== 'undefined' ? localStorage.getItem('cart') : null;
+            return savedCart ? JSON.parse(savedCart) : [];
+        } catch {
+            return [];
+        }
+    });
     const [discount, setDiscount] = useState(0); // Percent
     const [couponCode, setCouponCode] = useState('');
-
-    useEffect(() => {
-        const savedCart = localStorage.getItem('cart');
-        if (savedCart) {
-            setCart(JSON.parse(savedCart));
-        }
-    }, []);
 
     useEffect(() => {
         localStorage.setItem('cart', JSON.stringify(cart));

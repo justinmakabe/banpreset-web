@@ -5,14 +5,22 @@ import { createClient } from '@/utils/supabase/client';
 import { Plus, Trash2, Tag } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+interface Category {
+    id: string;
+    name: string;
+    slug: string;
+    description?: string;
+    created_at?: string;
+}
+
 interface AdminCategoriesClientProps {
-    initialCategories: any[];
+    initialCategories: Category[];
 }
 
 export default function AdminCategoriesClient({ initialCategories }: AdminCategoriesClientProps) {
     const supabase = createClient();
     const router = useRouter();
-    const [categories, setCategories] = useState<any[]>(initialCategories);
+    const [categories, setCategories] = useState<Category[]>(initialCategories);
     const [newCategory, setNewCategory] = useState({ name: '', slug: '', description: '' });
     const [creating, setCreating] = useState(false);
 
@@ -42,8 +50,9 @@ export default function AdminCategoriesClient({ initialCategories }: AdminCatego
             const { data } = await supabase.from('categories').select('*').order('created_at', { ascending: false });
             if (data) setCategories(data);
 
-        } catch (error: any) {
-            alert('Error creating category: ' + error.message);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            alert('Error creating category: ' + message);
         } finally {
             setCreating(false);
         }
@@ -72,9 +81,10 @@ export default function AdminCategoriesClient({ initialCategories }: AdminCatego
             if (data) setCategories(data);
             router.refresh();
 
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
             console.error('Delete error:', error);
-            alert('Error deleting category: ' + error.message);
+            alert('Error deleting category: ' + message);
         }
     };
 

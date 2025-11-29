@@ -17,7 +17,7 @@ export default async function OrdersPage() {
         .select('*')
         .in('key', ['bank_account_number', 'bank_name', 'bank_account_name']);
 
-    const bankInfo: any = {};
+    const bankInfo: { accountNumber?: string; bankName?: string; accountName?: string } = {};
     if (settings) {
         settings.forEach(item => {
             if (item.key === 'bank_account_number') bankInfo.accountNumber = item.value;

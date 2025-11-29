@@ -44,9 +44,10 @@ export default function AdminProductsClient({ initialProducts }: AdminProductsCl
 
             alert('Product deleted successfully');
             router.refresh(); // Refresh server data
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
             console.error('Delete error:', error);
-            alert('Error deleting product: ' + error.message);
+            alert('Error deleting product: ' + message);
         }
     };
 

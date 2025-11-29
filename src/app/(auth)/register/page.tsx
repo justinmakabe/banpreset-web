@@ -35,8 +35,9 @@ export default function RegisterPage() {
             // In a real app, you might want to show a success message or redirect to a verification page
             // For this demo, we'll redirect to login
             router.push('/login?registered=true');
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
+            setError(message);
         } finally {
             setLoading(false);
         }

@@ -7,20 +7,45 @@ import { Package, Download, Clock, QrCode, X, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency } from '@/utils/format';
 
+interface BankInfo {
+    bankName?: string;
+    accountNumber?: string;
+    accountName?: string;
+}
+
+interface OrderItem {
+    products?: {
+        id: string;
+        name: string;
+        image_url?: string | null;
+        download_url?: string | null;
+    } | null;
+    price: number;
+}
+
+interface Order {
+    id: string;
+    created_at: string;
+    status: 'pending' | 'completed' | 'refunded' | 'cancelled';
+    order_code: string;
+    total_amount: number;
+    order_items?: OrderItem[];
+}
+
 interface OrdersClientProps {
-    initialOrders: any[];
-    bankInfo: any;
+    initialOrders: Order[];
+    bankInfo: BankInfo;
 }
 
 export default function OrdersClient({ initialOrders, bankInfo }: OrdersClientProps) {
     const router = useRouter();
     const supabase = createClient();
-    const [orders, setOrders] = useState<any[]>(initialOrders);
+    const [orders, setOrders] = useState<Order[]>(initialOrders);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
-    const [selectedOrder, setSelectedOrder] = useState<any>(null);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [canceling, setCanceling] = useState<string | null>(null);
 
-    const handleViewPayment = (order: any) => {
+    const handleViewPayment = (order: Order) => {
         setSelectedOrder(order);
         setShowPaymentModal(true);
     };
@@ -47,7 +72,7 @@ export default function OrdersClient({ initialOrders, bankInfo }: OrdersClientPr
             // Refresh orders list
             router.refresh();
             // Optimistically update UI or wait for refresh
-            setOrders(orders.map(o => o.id === orderId ? { ...o, status: 'cancelled' } : o).filter(o => o.status !== 'cancelled')); // Or keep them but show cancelled status if you want
+            setOrders(orders.map(o => o.id === orderId ? { ...o, status: 'cancelled' as const } : o).filter(o => o.status !== 'cancelled')); // Or keep them but show cancelled status if you want
 
             // Re-fetch to be safe (or rely on router.refresh if page is server component)
             // Since we are in client component, router.refresh() will re-run server component and pass new props.
@@ -58,9 +83,10 @@ export default function OrdersClient({ initialOrders, bankInfo }: OrdersClientPr
             // A simple way is to just reload the page or fetch again.
             window.location.reload();
 
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
             console.error('Error canceling order:', error);
-            alert('Failed to cancel order: ' + error.message);
+            alert('Failed to cancel order: ' + message);
         } finally {
             setCanceling(null);
         }
@@ -108,7 +134,7 @@ export default function OrdersClient({ initialOrders, bankInfo }: OrdersClientPr
                                 </div>
 
                                 <div className="divide-y divide-white/5">
-                                    {order.order_items?.map((item: any) => (
+                                    {order.order_items?.map((item) => (
                                         <div key={item.products?.id} className="p-6 flex flex-col md:flex-row items-center gap-6 hover:bg-white/5 transition-colors">
                                             {/* Product Image */}
                                             <div className="w-full md:w-24 aspect-square rounded-lg overflow-hidden bg-black/50 relative flex-shrink-0">

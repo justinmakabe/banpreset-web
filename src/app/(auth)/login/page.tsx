@@ -28,8 +28,9 @@ export default function LoginPage() {
 
             router.push('/');
             router.refresh();
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
+            setError(message);
         } finally {
             setLoading(false);
         }
@@ -95,7 +96,7 @@ export default function LoginPage() {
                 </form>
 
                 <div className="mt-8 text-center text-sm text-gray-400">
-                    Don't have an account?{' '}
+                    Don&apos;t have an account?{' '}
                     <Link href="/register" className="text-primary hover:text-primary/80 font-medium transition-colors">
                         Create account
                     </Link>
